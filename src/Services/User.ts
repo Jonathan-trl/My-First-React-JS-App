@@ -30,11 +30,11 @@ class UserService {
 
     static async store(data: IUser) {
 
-        try{
+        try {
             const response = await api.post(`/user`, data);
             return response.data;
         }
-        catch(e){
+        catch (e) {
             return {
                 status: 400
             }
@@ -46,8 +46,15 @@ class UserService {
 
     }
 
-    static async delete() {
-
+    static async delete(data: []) {
+        try {
+            const response = await api.delete(`/user`, { data })
+            return response.data;
+        } catch (e) {
+            return {
+                status: 400
+            }
+        }
     }
 
 }

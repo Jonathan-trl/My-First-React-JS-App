@@ -83,7 +83,9 @@ const UserManagement = () => {
 
   const [users, setUsers] = useState<IUser[]>([]);
 
-  const [idsChecked, setIdsChecked] = useState<number[]>([]);
+  const [idsChecked, setIdsChecked] = useState<any>([]);
+
+  const [checkedAll, setCheckedAll] = useState(false);
 
   const selectUser = (id: number, check: boolean) => {
     users.map((user) => {
@@ -108,6 +110,7 @@ const UserManagement = () => {
   };
 
   const checkAll = (e: boolean) => {
+    setCheckedAll(true);
     users.map((user) => {
       user.selected !== e && checkId(!user.selected, user.id);
     });
@@ -115,14 +118,12 @@ const UserManagement = () => {
 
   const getUsers = () => {
     UserService.getAll().then((response) => {
-      if (response.status === "success") {
-        const users = response.data;
-        users.map((user: IUser) => {
-          user.selected = false;
-          return user;
-        });
-        setUsers(users);
-      }
+      const users = response.data;
+      users.map((user: IUser) => {
+        user.selected = false;
+        return user;
+      });
+      setUsers(users);
     });
   };
 
@@ -130,13 +131,28 @@ const UserManagement = () => {
     getUsers();
   }, []);
 
-  const storeUser: SubmitHandler<IUser> = (data) => {
-    UserService.store(data).then((response) => {
-      console.log(response);
+  const deleteUsers = () => {
+    const newIdsChecked = idsChecked.map((id: number) => {
+      return {
+        id,
+      };
+    });
+    UserService.delete(newIdsChecked).then((response) => {
       if (response.status === "success") {
         getUsers();
       }
     });
+
+    setCheckedAll(false);
+  };
+
+  const storeUser: SubmitHandler<IUser> = (data) => {
+    UserService.store(data).then((response) => {
+      if (response.status === "success") {
+        getUsers();
+      }
+    });
+    
   };
 
   return (
@@ -146,7 +162,7 @@ const UserManagement = () => {
           <Flex justifyContent="space-between">
             <Title>Gestão de usuários</Title>
             <div>
-              <ButtonDelete onClick={() => getUsers()}>Deletar</ButtonDelete>
+              <ButtonDelete onClick={() => deleteUsers()}>Deletar</ButtonDelete>
               <ButtonAdd
                 onClick={() => setVisibleBoxAddUser(!visibleBoxAddUser)}
               >
@@ -193,6 +209,7 @@ const UserManagement = () => {
               <Td>
                 <Input
                   type="checkbox"
+                  checked={checkedAll}
                   onChange={(e) => checkAll(e.target.checked)}
                 />
               </Td>
