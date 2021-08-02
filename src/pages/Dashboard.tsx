@@ -152,7 +152,6 @@ const UserManagement = () => {
         getUsers();
       }
     });
-    
   };
 
   return (
